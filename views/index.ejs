@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안녕, 나의 냉장고</title>
+
+    <link rel="stylesheet" href="/css/default.css">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <nav>
+        <a class="logo" href="/">안녕, 나의 냉장고</a>
+
+        <ul>
+            <li> <a href="/orderList/userCheck?location=/">주문내역</a> </li>
+            <li> <a href="/purchasedList/userCheck?location=/">구매완료내역</a></li>
+            <li> <a href="/siteInfo">사이트 소개</a> </li>
+            <% if (cookieID) { %> 
+            <li> <a href="/login/logout">로그아웃</a> </li>
+            <% } else { %>
+            <li> <a href="/login">로그인</a> </li>
+            <% } %>
+        </ul>
+
+        <div class="index_main_string">
+            <p class="title">안녕, 나의 냉장고</p>
+            <p class="text">구매하신 식료품들이 상하지 않도록 관리합니다.</p>
+        </div>
+    </nav>
+
+    <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-analytics.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        var firebaseConfig = {
+          apiKey: "AIzaSyBRs_V38h0ywkPL1Lp9meB7Go-KXyrxFBY",
+          authDomain: "refriger-management-project.firebaseapp.com",
+          databaseURL: "https://refriger-management-project.firebaseio.com",
+          projectId: "refriger-management-project",
+          storageBucket: "refriger-management-project.appspot.com",
+          messagingSenderId: "314572240368",
+          appId: "1:314572240368:web:61a6602c44e2e2706c5935",
+          measurementId: "G-9J5QBZKTVZ"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+    </script>
+    <script src="/javascript/index.js"></script>
+</body>
+</html>

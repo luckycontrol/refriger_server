@@ -1,0 +1,27 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.orderList {
+    padding-left: 10%;
+    padding-right: 10%;
+    margin-top: 5%;
+    margin-bottom: 5%;
+}
+
+.orderList th, td {
+    border: 1px solid #ff6361;
+    padding: 8px;
+    text-align: left;
+}
+
+.orderList th {
+    background-color: #ff6361;
+    color: white;
+}
+
+.orderList h1 {
+    color: white;
+    margin-bottom: 10px;
+}

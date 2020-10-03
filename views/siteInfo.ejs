@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안녕, 나의 냉장고</title>
+
+    <link rel="stylesheet" href="/css/default.css">
+</head>
+<body>
+    <nav>
+        <a class="logo" href="/">안녕, 나의 냉장고</a>
+
+        <ul>
+            <li> <a href="/orderList/userCheck">주문내역</a> </li>
+            <li> <a href="purchasedList/userCheck">구매완료내역</a> </li>
+            <li> <a href="/siteInfo">사이트 소개</a> </li>
+            <% if (cookieID) { %> 
+            <li> <a href="/login/logout">로그아웃</a> </li>
+            <% } else { %>
+            <li> <a href="/login">로그인</a> </li>
+            <% } %>
+        </ul>
+    </nav>
+
+    <div>
+        <h1>사이트 정보</h1>
+    </div>
+</body>
+</html>

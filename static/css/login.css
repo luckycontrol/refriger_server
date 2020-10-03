@@ -1,0 +1,74 @@
+.loginBox {
+    color: #ff6361;
+    width: 280px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+}
+
+.loginBox h1 {
+    float: top;
+    font-size: 40px;
+    margin-bottom: 35px;
+    padding-bottom: 13px;
+}
+
+.textBox {
+    width: 100%;
+    overflow: hidden;
+    font-size: 20px;
+    padding: 8px 0;
+    margin: 8px 0;
+    border-bottom: 1px solid #ff6361;
+}
+
+.textBox i {
+    width: 26px;
+    float: left;
+    text-align: center;
+}
+
+.textBox input {
+    border: none;
+    outline: none;
+    background: none;
+    color: black;
+    font-size: 14px;
+    width: 80%;
+    float: left;
+    margin: 0 10px;
+}
+
+.loginBtn {
+    width: 100%;
+    background: none;
+    border: 2px solid #ff6361;
+    color: black;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 12px 0;
+}
+
+.warning {
+    color: gray;
+    text-align: center;
+    padding-top: 50%;
+}
+
+@-webkit-keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ }
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ }

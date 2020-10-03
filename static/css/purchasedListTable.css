@@ -1,0 +1,26 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.PurchasedList {
+    padding-left: 10%;
+    padding-right: 10%;
+    margin-top: 5%;
+}
+
+.PurchasedList th, td {
+    border: 1px solid #ff6361;
+    padding: 8px;
+    text-align: left;
+}
+
+.PurchasedList th {
+    background-color: #ff6361;
+    color: white;
+}
+
+.PurchasedList h1 {
+    color: white;
+    margin-bottom: 10px;
+}

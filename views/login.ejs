@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>안녕, 나의 냉장고</title>
+
+    <link rel="stylesheet" href="/css/default.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+    <nav>
+        <a class="logo" href="/">안녕, 나의 냉장고</a>
+
+        <ul>
+            <li> <a href="/orderList?location=login">주문내역</a> </li>
+            <li> <a href="purchasedList?location=login">구매완료내역</a></li>
+            <li> <a href="/siteInfo?location=login">사이트 소개</a> </li>
+            <li> <a href="/login">로그인</a> </li>
+        </ul>
+    </nav>
+
+    <div class="loginBox">
+        <h1> 로그인 </h1>
+        <div class="textBox">
+          <i class="fa fa-user" aria-hidden="true"></i>
+          <input type="text" placeholder="이메일을 입력하세요." id="email" name="email" value="" required>
+        </div>
+
+        <div class="textBox">
+          <i class="fa fa-lock" aria-hidden="true"></i>
+          <input type="password" placeholder="비밀번호를 입력하세요." id="password" name="password" value="" required>
+        </div>
+
+        <button class="loginBtn">로그인</button>
+    </div>
+
+    <div class="warning">
+        <p> 관리자 전용 페이지입니다. 일반 사용자분들은 사용하실 수 없습니다. </p>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.21.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseApp = firebase.initializeApp({
+            apiKey: "AIzaSyBRs_V38h0ywkPL1Lp9meB7Go-KXyrxFBY",
+            authDomain: "refriger-management-project.firebaseapp.com",
+            databaseURL: "https://refriger-management-project.firebaseio.com",
+            projectId: "refriger-management-project",
+            storageBucket: "refriger-management-project.appspot.com",
+            messagingSenderId: "314572240368",
+            appId: "1:314572240368:web:61a6602c44e2e2706c5935",
+            measurementId: "G-9J5QBZKTVZ"
+        });
+
+        const db = firebaseApp.firestore();
+        const auth = firebaseApp.auth();
+
+    </script>
+    <script src="/javascript/default.js"></script>
+    <script src="/javascript/login.js"></script>
+
+</body>
+</html>

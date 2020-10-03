@@ -1,0 +1,57 @@
+@font-face {
+    font-family: "BinggraeMelona";
+    src: url("/css/BinggraeMelona.otf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    text-decoration: none;
+    list-style: none;
+    font-family: BinggraeMelona;
+}
+
+a:link {
+    color: white;
+}
+
+a:visited {
+    color: white;
+}
+
+body {
+    background: url("/images/bg2.jpg");
+    background-size: cover;
+}
+
+nav {
+    height: 80px;
+    width: 100%;
+    background-color: #dbc6eb;
+    position: sticky;
+    top: 0;
+    border: solid gray 1px;
+    font-weight: bold;
+    color: white;
+}
+
+a.logo {
+    font-size: 25px;
+    padding: 0 50px;
+    line-height: 80px;
+    font-weight: bold;
+    color: white;
+}
+
+nav ul {
+    float: right;
+    margin-right: 40px;
+}
+
+nav li {
+    display: inline-block;
+    margin: 0 8px;
+    line-height: 80px;
+}
