@@ -13,180 +13,204 @@ db.collection('Purchase').onSnapshot((querySnapshot) => {
             let orderId = order[0];
             let orderEmail = order[1];
 
-            let foodNames;
-            let foodCounts;
+            let foodNames, foodCounts;
+            let foodTextArr = [];
+
+            let name, hp, address;
 
             db.doc(`Purchase/${orderEmail}/${orderId}/Food`)
               .get()
               .then((doc) => {
+                /* 식료품이름과 갯수 - 주문정보 */
                 foodNames = doc.data()['foodNames'];
                 foodCounts = doc.data()['foodCounts'];
+
+                for (let i=0; i<foodNames.length; i++) {
+                    foodTextArr.push(`${foodNames[i]}-${foodCounts[i]}`);
+                }
               })
               .then(() => {
-                  console.log(foodNames);
+                  db.doc(`Purchase/${orderEmail}/${orderId}/orderInfo`)
+                    .get()
+                    .then((doc) => {
+                        /* 이름, hp, address - 주문자정보 */
+                        name = doc.data()['name'];
+                        hp = doc.data()['hp'];
+                        address = doc.data()['address'];
+                    })
+                    .then(() => {
+                        let row = table.insertRow(1);
+                        row.insertCell(0).innerHTML = name;
+                        row.insertCell(1).innerHTML = hp;
+                        row.insertCell(2).innerHTML = address;
+                        row.insertCell(3).innerHTML = foodTextArr.join('<br>');
+
+                        let ready = document.createElement('Button');
+                        ready.innerHTML = '배송준비완료';
+                        ready.setAttribute('id', order.join('-'));
+                        ready.addEventListener('click', (event) => {
+                            orderIsReady(event.target.id);
+                        });
+                        row.insertCell(4).appendChild(ready);
+
+                        let refund = document.createElement('Button');
+                        refund.innerHTML = '환불';
+                        refund.setAttribute('id', order.join('-'));
+                        refund.addEventListener('click', (event) => {
+                            refundOrder(event.target.id);
+                        });
+                        row.insertCell(5).appendChild(refund);
+                    })
               })
         }
     });
 });
 
-async function getFood(orderId, orderEmail) {
-    await db.doc(`Purchase/${orderEmail}/${orderId}/Food`)
-        .get()
-        .then(doc => {
-            let foodArr = []
+function test(id, callback) {
+    let order = id.split('-');
+    let orderId = order[0];
+    let orderEmail = order[1];
 
-            foodArr.push(doc.data()['foodNames']);
-            foodArr.push(doc.data()['foodCounts']);
-            foodArr.push(doc.data()['foodCategory']);
-
-            return foodArr;
-        });
-}
-
-function test(id) {
-    let id_split = id.split('-');
-    let email = id_split[1];
-    let orderCount = id_split[0];
-
-    db.collection('Purchase').doc(email)
-      .get()
-      .then(doc => {
-          let orderArr = doc.data()['orderArr'];
-          console.log(orderArr.length);
-
-          for (let index=0; index<orderArr.length; index++) {
-              if (orderArr[index] === id_split.join('-')) {
-                  orderArr.splice(index, 1);
-                  console.log(orderArr.length);
-              }
-          }
-      })
+    console.log(testCallback(orderId, orderEmail));
 }
 
 /* 배송준비완료 함수 */
 function orderIsReady(id) {
+    // id를 번호 - 이메일 로 나눈다.
+    let order = id.split('-');
+    let orderId = order[0];
+    let orderEmail = order[1];
 
-    /* id: 번호 - 이메일 */
-    let id_split = id.split('-');
-    let email = id_split[1];
-    let orderCount = id_split[0];
+    // Purchase에서 Food, orderInfo, orderArr를 가져온다.
+    let foodNames, foodCounts, foodCategory;
+    let name, hp, address;
 
-    let name;
-    let hp;
-    let address;
-    
-    let foodNames;
-    let foodCategory;
-    let foodCounts;
-
-    /* 선택한 주문의 데이터를 가져온다. */
-    db.collection('Purchase').doc(email)
-      .collection(orderCount).doc('Food')
+    db.doc(`Purchase/${orderEmail}/${orderId}/Food`)
       .get()
-      .then(doc => {
-          /* 음식이름, 갯수, 카테고리를 Delivered에 넣는다. */
-          foodNames = doc.data()['foodNames'];
-          foodCounts = doc.data()['foodCounts'];
-          foodCategory = doc.data()['foodCategory'];
+      .then((doc) => {
+        foodNames = doc.data()['foodNames'];
+        foodCounts = doc.data()['foodCounts'];
+        foodCategory = doc.data()['foodCategory'];
 
-          let orderArr;
+        db.doc(`Purchase/${orderEmail}/${orderId}/Food`).delete();
+      })
+      .then(() => {
+        db.doc(`Purchase/${orderEmail}/${orderId}/orderInfo`)
+          .get()
+          .then((doc) => {
+              name = doc.data()['name'];
+              hp = doc.data()['hp'];
+              address = doc.data()['address'];
 
-          /* orderArr을 구해서 Delivered에 넣습니다. */
-          db.collection('Delivered').doc(email)
-            .get()
-            .then(doc => {
-                /* Delivered에 사용자 이메일이 있다면, */
-                if (doc.exists) {
-                    console.log('있다.');
-                    db.collection('Delivered').doc(email)
-                      .get()
-                      .then(doc => {
-                          orderArr = doc.data()['orderArr'];
-                        
-                          /* 선택한 주문을 Delivered의 orderArr에 추가합니다. */
-                          orderArr.push(id_split.join('-'));
-                      })
-                      .then(() => {
-                          db.collection('Delivered').doc(email)
-                            .set({
+              db.doc(`Purchase/${orderEmail}/${orderId}/orderInfo`).delete();
+          })
+          .then(() => {
+              db.collection('Delivered').doc(orderEmail)
+                .get()
+                .then(doc => {
+                    // Delivered에 이메일이 있는지 확인
+                    // 이메일이 있으면 orderArr을 가져온 후 선택한 주문을 넣고, Food, orderInfo를 넣는다.
+                    if (doc.exists) {
+                        db.doc(`Delivered/${orderEmail}`)
+                          .get()
+                          .then(doc => {
+                              let orderArr = doc.data()['orderArr'];
+                              orderArr.push(order.join('-'));
+
+                              db.doc(`Delivered/${orderEmail}/${orderId}/Food`)
+                                .set({
+                                    foodNames: foodNames,
+                                    foodCounts: foodCounts,
+                                    foodCategory: foodCategory
+                                });
+                            
+                              db.doc(`Delivered/${orderEmail}/${orderId}/orderInfo`)
+                                .set({
+                                    name: name,
+                                    hp: hp,
+                                    address: address
+                                });
+
+                              db.doc(`Delivered/${orderEmail}`)
+                                .set({
+                                    orderArr: orderArr
+                                });
+                          })
+                    } else {
+                        let orderArr = []
+                        orderArr.push(order.join('-'));
+
+                        db.doc(`Delivered/${orderEmail}/${orderId}/Food`)
+                          .set({
+                                foodNames: foodNames,
+                                foodCounts: foodCounts,
+                                foodCategory: foodCategory
+                          });
+                            
+                        db.doc(`Delivered/${orderEmail}/${orderId}/orderInfo`)
+                          .set({
+                                name: name,
+                                hp: hp,
+                                address: address
+                          });
+
+                        db.doc(`Delivered/${orderEmail}`)
+                          .set({
                                 orderArr: orderArr
-                            });
-                      });
-                } else {
-                /* 이메일이 없다면 orderArr을 그냥 넣습니다. */
-                    db.collection('Delivered').doc(email)
-                      .set({
-                          orderArr: id_split.join('-')
-                      });
-                }
-            })
-
-          /* 선택한 주문을 Delivered의 Food에 넣습니다. */
-          db.collection('Delivered').doc(email)
-          .collection(orderCount).doc('Food')
-          .set({
-              foodNames: foodNames,
-              foodCounts: foodCounts,
-              foodCategory: foodCategory
-          });   
-      })
-      .then(() => {
-          /* 주문자이름, hp, address를 가져오고 Delivered의 orderInfo에 넣는다. */
-          db.collection('Purchase').doc(email)
-            .collection(orderCount).doc('orderInfo')
-            .get()
-            .then(doc => {
-                name = doc.data()['name'];
-                hp = doc.data()['hp'];
-                address = doc.data()['address'];
-
-                db.collection('Delivered').doc(email)
-                  .collection(orderCount).doc('orderInfo')
-                  .set({
-                      'name': name,
-                      'hp': hp,
-                      'address': address
-                  });
-            });
-      })
-      .then(() => {
-          let orderArr;
-
-          /* Purchase 에서 orderArr을 가져오고 수정해서 넣는다.*/
-          db.collection('Purchase').doc(email)
-            .get()
-            .then(doc => {
-                orderArr = doc.data()['orderArr'];
-                
-                for (let index=0; index<orderArr.length; index++) {
-                    if (orderArr[index] === id_split.join('-')) {
-                        orderArr.splice(index, 1);
+                          }, { merge: true });
                     }
-                }
-            })
-            .then(() => {
-                db.collection('Purchase').doc(email)
-                  .set({
-                      orderArr: orderArr
-                  });
-            });
-
-          /* Purchase에서 선택한 주문을 지운다. */
-          db.collection('Purchase').doc(email)
-            .collection(orderCount)
-            .get()
-            .then(querySnapshot => {
-                querySnapshot.docs[0].ref.delete();
-                querySnapshot.docs[1].ref.delete();
-            });
-      });
+                })
+          })
+          .then(() => {
+              let orderArr = []
+    
+              db.doc(`Purchase/${orderEmail}`)
+                .get()
+                .then(doc => {
+                    orderArr = doc.data()['orderArr'];
+                    for (let index=0; index<orderArr.length; index++) {
+                        if (orderArr[index] === order.join('-')) {
+                            orderArr.splice(index, 1);
+                            break;
+                        }
+                    }
+                })
+                .then(() => {
+                    db.doc(`Purchase/${orderEmail}`)
+                      .set({
+                          orderArr: orderArr
+                      }, { merge: true});
+                });
+          });
+       });
 }
 
 /* 환불 함수 */
 function refundOrder(id) {
-    let id_split = id.split('-');
-    let email = id_split[0];
-    let orderCount = id_split[1];
+    let order = id.split('-');
+    let orderId = order[0];
+    let orderEmail = order[1];
 
-    
+    // 선택한 주문을 Purchase에서 지운다.
+    // Purchase에서 orderArr을 가져오고 선택한 주문을 지운 후 다시 넣는다.
+    db.doc(`Purchase/${orderEmail}/${orderId}/Food`).delete();
+    db.doc(`Purchase/${orderEmail}/${orderId}/orderInfo`).delete();
+
+    db.doc(`Purchase/${orderEmail}`)
+      .get()
+      .then(doc => {
+          let orderArr = doc.data()['orderArr'];
+
+          for (let index=0; index<orderArr.length; index++) {
+              if (orderArr[index] === order.join('-')) {
+                  orderArr.splice(index, 1);
+                  break;
+              }
+          }
+
+          db.doc(`Purchase/${orderEmail}`)
+            .set({
+                orderArr: orderArr
+            }, { merge: true })
+      })
 }
