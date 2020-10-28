@@ -1,8 +1,10 @@
 let table = document.getElementById('PurchasedListTable');
 let db = firebase.firestore();
 
-db.collection('Delivered').onSnapshot((querySnapshot) => {
-    /* 이메일들 ForEach */
+let printDiv;
+let initTable;
+
+db.collection('Delivered').get().then(querySnapshot => {
     querySnapshot.forEach(doc => {
         /* 한 주문자가 주문한 여러 주문들 */
         let orderArr = doc.data()['orderArr']
@@ -45,66 +47,70 @@ db.collection('Delivered').onSnapshot((querySnapshot) => {
                         row.insertCell(2).innerHTML = address;
                         row.insertCell(3).innerHTML = foodTextArr.join('<br>');
 
-                        let qrCell = document.createElement('div');
-                        qrCell.setAttribute('id', order.join('-'));
-                        row.insertCell(4).appendChild(qrCell);
-                        makeQRCode(order.join('-'));
-
-
                         let refund = document.createElement('Button');
                         refund.innerHTML = '환불';
                         refund.setAttribute('id', order.join('-'));
                         refund.addEventListener('click', (event) => {
                             refundOrder(event.target.id);
                         });
-                        row.insertCell(5).appendChild(refund);
+                        row.insertCell(4).appendChild(refund);
                     })
               })
         }
     });
 });
 
-function makeQRCode(id) {
-    new QRCode(id, {
-        text: id,
-        width: 128,
-        height: 128,
-        colorDark: '#120136',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.L
-    });
-}
-
 /* 환불 함수 */
 function refundOrder(id) {
+    
+    getOrderArrFromDelivered(id).then(orderArr => {
+        let order = id.split('-');
+        let orderEmail = order[1];
+    
+        for (let index=0; index<orderArr.length; index++) {
+            if (orderArr[index] == id) {
+                orderArr.splice(index, 1);
+                break;
+            }
+        }
+
+        if (orderArr.length > 0) {
+            db.doc(`Delivered/${orderEmail}`).set({
+                orderArr: orderArr
+            }, { merge: true })
+        } else {
+            db.doc(`Delivered/${orderEmail}`).delete();
+        }
+
+        removeDeliveredFood(id);
+
+    }).then(setTimeout(() => window.location.reload(), 1500));
+}
+
+function removeDeliveredFood(id) {
     let order = id.split('-');
     let orderId = order[0];
     let orderEmail = order[1];
 
-    // 선택한 주문을 Purchase에서 지운다.
-    // Purchase에서 orderArr을 가져오고 선택한 주문을 지운 후 다시 넣는다.
     db.doc(`Delivered/${orderEmail}/${orderId}/Food`).delete();
     db.doc(`Delivered/${orderEmail}/${orderId}/orderInfo`).delete();
+}
 
-    db.doc(`Delivered/${orderEmail}`)
-      .get()
-      .then(doc => {
-          let orderArr = doc.data()['orderArr'];
+async function getOrderArrFromDelivered(id) {
+    let order = id.split('-');
+    let orderEmail = order[1];
 
-          for (let index=0; index<orderArr.length; index++) {
-              if (orderArr[index] === order.join('-')) {
-                  orderArr.splice(index, 1);
-                  break;
+    let _orderArr = new Promise((resolve, reject) => {
+        db.doc(`Delivered/${orderEmail}`)
+          .get()
+          .then(doc => {
+              if (doc.exists) {
+                resolve(doc.data()['orderArr']);
+              } else {
+                resolve('none');
               }
-          }
+          })
+    })
 
-          if (orderArr.length === 0) {
-            db.doc(`Delivered/${orderEmail}`).delete();
-          } else {
-            db.doc(`Delivered/${orderEmail}`)
-            .set({
-                orderArr: orderArr
-            }, { merge: true })
-          }
-      })
+    return await _orderArr;
 }
